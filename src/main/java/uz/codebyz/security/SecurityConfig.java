@@ -1,120 +1,20 @@
-//package uz.codebyz.security;
-//
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.boot.context.properties.EnableConfigurationProperties;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-//import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-//import org.springframework.security.web.SecurityFilterChain;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-//import org.springframework.web.cors.CorsConfiguration;
-//import org.springframework.web.cors.CorsConfigurationSource;
-//import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-//
-//import java.util.List;
-//
-//@Configuration
-//@EnableMethodSecurity
-//@EnableConfigurationProperties({JwtProperties.class, OAuthProperties.class})
-//public class SecurityConfig {
-//
-//    private final JwtService jwtService;
-//    private final OAuthSuccessHandler oAuthSuccessHandler;
-//    private final OAuthFailureHandler oAuthFailureHandler;
-//
-//    public SecurityConfig(JwtService jwtService,
-//                          OAuthSuccessHandler oAuthSuccessHandler,
-//                          OAuthFailureHandler oAuthFailureHandler) {
-//        this.jwtService = jwtService;
-//        this.oAuthSuccessHandler = oAuthSuccessHandler;
-//        this.oAuthFailureHandler = oAuthFailureHandler;
-//    }
-//
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(cors -> {})
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(
-//                                "/swagger-ui/**",
-//                                "/v3/api-docs/**",
-//                                "/api/auth/**",
-//                                "/files/**",
-//                                "/oauth2/**",
-//                                "/login/**"
-//                        ).permitAll()
-//                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN","STUDENT","TEACHER")
-//                        .anyRequest().authenticated()
-//                )
-//                .oauth2Login(oauth -> oauth
-//                        .successHandler(oAuthSuccessHandler)
-//                        .failureHandler(oAuthFailureHandler)
-//                )
-//                .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
-//
-//        return http.build();
-//    }
-//
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//
-//    @Bean
-//    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-//        return configuration.getAuthenticationManager();
-//    }
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//
-//        CorsConfiguration config = new CorsConfiguration();
-//
-//        // 🔥 Hamma domendan ruxsat (PROD uchun emas, faqat test/temporary)
-//        config.setAllowedOriginPatterns(List.of("*"));
-//
-//        // 🔥 Hamma metodlarga ruxsat
-//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-//
-//        // 🔥 Hamma headerlarga ruxsat
-//        config.setAllowedHeaders(List.of("*"));
-//
-//        // 🔥 Cookie / Token yuborilishi uchun
-//        config.setAllowCredentials(true);
-//
-//        // Expose Authorization header
-//        config.setExposedHeaders(List.of("Authorization"));
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//
-//        return source;
-//    }
-//
-//}
-
 package uz.codebyz.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.*;
 
 import java.util.List;
 
@@ -127,105 +27,100 @@ public class SecurityConfig {
     private final OAuthSuccessHandler oAuthSuccessHandler;
     private final OAuthFailureHandler oAuthFailureHandler;
 
-    public SecurityConfig(
-            JwtService jwtService,
-            OAuthSuccessHandler oAuthSuccessHandler,
-            OAuthFailureHandler oAuthFailureHandler
-    ) {
+    public SecurityConfig(JwtService jwtService,
+                          OAuthSuccessHandler oAuthSuccessHandler,
+                          OAuthFailureHandler oAuthFailureHandler) {
         this.jwtService = jwtService;
         this.oAuthSuccessHandler = oAuthSuccessHandler;
         this.oAuthFailureHandler = oAuthFailureHandler;
     }
 
+    /**
+     * 1) API SECURITY (JWT) — NO REDIRECT, RETURN 401/403
+     */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+    @Order(1)
+    public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         http
-                // 🔥 CORS ni yoqish
+                .securityMatcher("/api/**")
                 .cors(cors -> {})
-
-                // 🔥 REST API uchun CSRF o‘chiq
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 🔥 API da redirect bo‘lmasin!
+                .exceptionHandling(eh -> eh
+                        .authenticationEntryPoint((req, res, ex) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                        )
+                        .accessDeniedHandler((req, res, ex) ->
+                                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden")
+                        )
+                )
 
                 .authorizeHttpRequests(auth -> auth
-
-                        // 🔥 PREFLIGHT OPTIONS DOIM OCHIQ
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // 🔓 PUBLIC
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/api/auth/**",
-                                "/files/**",
-                                "/oauth2/**",
-                                "/login/**"
-                        ).permitAll()
-
-                        // 🔐 PROTECTED
-                        .requestMatchers("/api/users/**")
-                        .hasAnyRole("ADMIN", "STUDENT", "TEACHER")
-
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
+                        .requestMatchers("/api/users/me").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
                         .anyRequest().authenticated()
                 )
 
-                // 🔐 OAuth2
+                .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+
+                // API uchun OAuth2 loginni umuman qo‘ymaymiz
+                .oauth2Login(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
+
+        return http.build();
+    }
+
+    /**
+     * 2) OAUTH2 SECURITY — redirect BO‘LADI (bu normal)
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/oauth2/**", "/login/**", "/swagger-ui/**", "/v3/api-docs/**", "/files/**")
+                .cors(cors -> {})
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/files/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**").permitAll()
+                        .anyRequest().permitAll()
+                )
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuthSuccessHandler)
                         .failureHandler(oAuthFailureHandler)
-                )
-
-                // 🔐 JWT FILTER
-                .addFilterBefore(
-                        new JwtAuthFilter(jwtService),
-                        UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
     }
 
-    // 🔐 PASSWORD
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
     }
 
-    // 🔐 AUTH MANAGER
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration
-    ) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
-    // 🌍 CORS CONFIG (FRONTEND QAYERDAN KELSA HAM ISHLAYDI)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ HAMMA ORIGIN (credentials YO‘Q)
-        config.setAllowedOriginPatterns(List.of("*"));
+        // ✅ dev uchun localhost
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        // prod frontend bo‘lsa qo‘shasiz: https://app.codebyz.online
 
-        // ✅ HAMMA METHOD
-        config.setAllowedMethods(List.of(
-                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
-        ));
-
-        // ✅ HAMMA HEADER
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-
-        // ❌ MUHIM: credentials O‘CHIQ
-        config.setAllowCredentials(false);
-
-        // Authorization header ko‘rinsin
         config.setExposedHeaders(List.of("Authorization"));
 
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
+        // ✅ Header token ishlatyapsiz => credentials shart emas
+        config.setAllowCredentials(false);
 
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-
         return source;
     }
 }
