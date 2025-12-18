@@ -307,7 +307,7 @@ public class AuthService {
         // 🔥 ADMIN ONAYI
         user.setApprovalStatus(ApprovalStatus.CHECKING);
         user.setApprovalUpdatedAt(Instant.now());
-
+        user.setApprovalReason("Yönetici incelemesi bekleniyor");
         userRepository.save(user);
 
         return ResponseDto.ok(

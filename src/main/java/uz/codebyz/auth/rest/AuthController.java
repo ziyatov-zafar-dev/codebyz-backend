@@ -1,6 +1,10 @@
 package uz.codebyz.auth.rest;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.*;
 import uz.codebyz.auth.dto.*;
 import uz.codebyz.auth.service.AuthService;
@@ -52,41 +56,87 @@ public class AuthController {
         );
     }
 
-    // ================= BODY =================
+    // ================= SIGN UP VERIFY BODY =================
 
     /**
      * Sign-up verify uchun body:
      * - original sign-up ma'lumotlari
      * - verification code
+     * <p>
+     * ⚠️ BARCHA FIELD MAJBURIY
      */
     public static class SignUpVerifyBody {
 
+        @NotBlank(message = "Ad soyad zorunludur")
         private String fullName;
+
+        @NotBlank(message = "Kullanıcı adı zorunludur")
         private String username;
+
+        @NotBlank(message = "E-posta zorunludur")
+        @Email(message = "Geçerli bir e-posta giriniz")
         private String email;
+
+        @NotBlank(message = "Şifre zorunludur")
+        @Size(min = 6, message = "Şifre en az 6 karakter olmalıdır")
         private String password;
-        private UserRole role; // ⭐ MUHIM
+
+        @NotNull(message = "Rol zorunludur (STUDENT veya TEACHER)")
+        private UserRole role;
+
+        @NotBlank(message = "Doğrulama kodu zorunludur")
         private String code;
 
-        public SignUpVerifyBody() {}
+        public SignUpVerifyBody() {
+        }
 
-        public String getFullName() { return fullName; }
-        public void setFullName(String fullName) { this.fullName = fullName; }
+        public String getFullName() {
+            return fullName;
+        }
 
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
 
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
+        public String getUsername() {
+            return username;
+        }
 
-        public String getPassword() { return password; }
-        public void setPassword(String password) { this.password = password; }
+        public void setUsername(String username) {
+            this.username = username;
+        }
 
-        public UserRole getRole() { return role; }
-        public void setRole(UserRole role) { this.role = role; }
+        public String getEmail() {
+            return email;
+        }
 
-        public String getCode() { return code; }
-        public void setCode(String code) { this.code = code; }
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public UserRole getRole() {
+            return role;
+        }
+
+        public void setRole(UserRole role) {
+            this.role = role;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
 
         // ---------- MAPPER ----------
 
@@ -102,7 +152,7 @@ public class AuthController {
 
         public VerifyCodeRequest toVerifyRequest() {
             VerifyCodeRequest v = new VerifyCodeRequest();
-            v.setIdentifier(email); // 🔥 verification HAR DOIM email orqali
+            v.setIdentifier(email); // 🔥 SIGN-UP VERIFY HAR DOIM EMAIL ORQALI
             v.setCode(code);
             return v;
         }

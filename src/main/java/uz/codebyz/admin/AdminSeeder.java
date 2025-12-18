@@ -42,6 +42,7 @@ public class AdminSeeder implements CommandLineRunner {
         admin.setEmailVerified(true);
         admin.setApprovalStatus(ApprovalStatus.CONFIRMED);
         admin.setApprovalUpdatedAt(Instant.now());
+        admin.setApprovalReason("admin");
         userRepository.save(admin);
     }
 }

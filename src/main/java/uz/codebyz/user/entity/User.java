@@ -61,9 +61,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private ApprovalStatus approvalStatus;
     private Instant approvalUpdatedAt;
-    @Column(name = "approval_reason", length = 500)
+    @Column(nullable = false)
     private String approvalReason;
-
     public User() {
     }
 
