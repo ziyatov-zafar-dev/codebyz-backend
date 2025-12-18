@@ -108,23 +108,39 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
 
-        // ✅ dev uchun localhost
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
-        // prod frontend bo‘lsa qo‘shasiz: https://app.codebyz.online
+        // ✅ FRONTEND QAYERDAN KELISHINI BILMASAK HAM ISHLAYDI
+        config.setAllowedOriginPatterns(List.of("*"));
 
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        // ✅ HAMMA HTTP METHODLAR
+        config.setAllowedMethods(List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS"
+        ));
+
+        // ✅ HAMMA HEADERLAR
         config.setAllowedHeaders(List.of("*"));
+
+        // ✅ FRONTEND Authorization headerni o‘qiy oladi
         config.setExposedHeaders(List.of("Authorization"));
 
-        // ✅ Header token ishlatyapsiz => credentials shart emas
+        // ❗ MUHIM: COOKIE ISHLATILMAYDI → false
         config.setAllowCredentials(false);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
+
         return source;
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
