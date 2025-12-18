@@ -11,6 +11,7 @@ import uz.codebyz.notify.EmailService;
 import uz.codebyz.security.JwtService;
 import uz.codebyz.user.entity.ApprovalStatus;
 import uz.codebyz.user.entity.User;
+import uz.codebyz.user.entity.UserRole;
 import uz.codebyz.user.repo.UserRepository;
 
 import java.time.Instant;
@@ -245,7 +246,27 @@ public class AuthService {
         String email = original.getEmail().trim().toLowerCase();
         String username = original.getUsername().trim().toLowerCase();
 
-        // 🔐 verify email üzerinden
+        // 🔐 identifier faqat email bo‘lishi kerak
+        if (!email.equalsIgnoreCase(verify.getIdentifier())) {
+            return ResponseDto.fail(
+                    400,
+                    ErrorCode.VALIDATION_ERROR,
+                    "Doğrulama e-postası uyuşmuyor"
+            );
+        }
+
+        // 🔥 ROLE VALIDATSIYA
+        if (original.getRole() == null ||
+                (original.getRole() != UserRole.STUDENT &&
+                        original.getRole() != UserRole.TEACHER)) {
+
+            return ResponseDto.fail(
+                    400,
+                    ErrorCode.VALIDATION_ERROR,
+                    "Rol zorunludur (STUDENT veya TEACHER)"
+            );
+        }
+
         try {
             verificationService.verify(
                     email,
@@ -276,14 +297,14 @@ public class AuthService {
         user.setFullName(original.getFullName());
         user.setUsername(username);
         user.setEmail(email);
-        user.setPasswordHash(
-                passwordEncoder.encode(original.getPassword())
-        );
-
+        user.setPasswordHash(passwordEncoder.encode(original.getPassword()));
         user.setEmailVerified(true);
         user.setActive(true);
+
+        // 🔥 ROLE
         user.setRole(original.getRole());
 
+        // 🔥 ADMIN ONAYI
         user.setApprovalStatus(ApprovalStatus.CHECKING);
         user.setApprovalUpdatedAt(Instant.now());
 
@@ -293,6 +314,7 @@ public class AuthService {
                 "Kayıt başarılı. Hesabınız yönetici onayına gönderildi."
         );
     }
+
 
     /* ============================================================
        VERIFY ERROR MAPPERS
