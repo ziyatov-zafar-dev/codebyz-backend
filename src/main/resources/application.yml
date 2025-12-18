@@ -49,9 +49,9 @@ sendgrid:
   from-name: CodeByZ
 
 storage:
-  base-url: ${BACKEND}
+  base-url: ${BACKEND:https://codebyz.online}
   uploads-dir: uploads
-  public-base-url: ${BACKEND}/files
+  public-base-url: ${BACKEND:https://codebyz.online}/files
   profile:
     base:
       url: files/profile
