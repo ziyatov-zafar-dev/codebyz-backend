@@ -1,5 +1,6 @@
 package uz.codebyz.auth.service;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +10,7 @@ import uz.codebyz.common.ErrorCode;
 import uz.codebyz.common.ResponseDto;
 import uz.codebyz.notify.EmailService;
 import uz.codebyz.security.JwtService;
+import uz.codebyz.security.JwtUser;
 import uz.codebyz.user.entity.ApprovalStatus;
 import uz.codebyz.user.entity.User;
 import uz.codebyz.user.entity.UserRole;
@@ -372,4 +374,72 @@ public class AuthService {
             );
         };
     }
+
+    public ResponseDto<AuthTokensResponse> refreshToken(
+            RefreshTokenRequest req
+    ) {
+        String token = req.getRefreshToken();
+
+        JwtUser jwtUser;
+        try {
+            jwtUser = jwtService.parse(token);
+        } catch (Exception e) {
+            return ResponseDto.fail(
+                    401,
+                    ErrorCode.INVALID_TOKEN,
+                    "Refresh token noto‘g‘ri"
+            );
+        }
+
+        // ❌ TYPE TEKSHIRISH
+        if (!"refresh".equals(jwtUser.getType())) {
+            return ResponseDto.fail(
+                    401,
+                    ErrorCode.INVALID_TOKEN,
+                    "Bu refresh token emas"
+            );
+        }
+
+        // 👤 USER TEKSHIRISH
+        User user = userRepository.findById(jwtUser.getUserId())
+                .orElse(null);
+
+        if (user == null || !user.isActive()) {
+            return ResponseDto.fail(
+                    401,
+                    ErrorCode.USER_NOT_FOUND,
+                    "Foydalanuvchi topilmadi"
+            );
+        }
+
+        if (!user.isEmailVerified()) {
+            return ResponseDto.fail(
+                    403,
+                    ErrorCode.EMAIL_NOT_VERIFIED,
+                    "Email tasdiqlanmagan"
+            );
+        }
+
+        // 🔄 YANGI TOKENLAR
+        String newAccessToken = jwtService.generateAccessToken(
+                user.getId(),
+                user.getEmail(),
+                user.getRole()
+        );
+
+        String newRefreshToken = jwtService.generateRefreshToken(
+                user.getId(),
+                user.getEmail()
+        );
+
+        return ResponseDto.ok(
+                "Token yangilandi",
+                new AuthTokensResponse(
+                        user.getEmail(),
+                        newAccessToken,
+                        newRefreshToken
+                )
+        );
+    }
+
 }

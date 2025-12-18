@@ -157,4 +157,12 @@ public class AuthController {
             return v;
         }
     }
+
+    @PostMapping("/refresh")
+    public ResponseDto<AuthTokensResponse> refresh(
+            @Valid @RequestBody RefreshTokenRequest req
+    ) {
+        return authService.refreshToken(req);
+    }
+
 }

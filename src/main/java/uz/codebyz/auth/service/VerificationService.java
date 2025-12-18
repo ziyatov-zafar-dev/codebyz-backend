@@ -1,5 +1,6 @@
 package uz.codebyz.auth.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import uz.codebyz.auth.entity.EmailVerification;
 import uz.codebyz.auth.entity.VerificationPurpose;
@@ -32,26 +33,60 @@ public class VerificationService {
         return repo.save(ev);
     }
 
-    public EmailVerification verify(String email, VerificationPurpose purpose, String code) throws VerifyException {
+    /*public EmailVerification verify(String email, VerificationPurpose purpose, String code) throws VerifyException {
         EmailVerification ev = repo.findLatestNotUsed(email, purpose).orElse(null);
         if (ev == null) throw new VerifyException(VerifyError.NOT_FOUND);
-        if (ev.isUsed()) throw new VerifyException(VerifyError.USED);
-        if (ev.getExpiresAt().isBefore(Instant.now())) throw new VerifyException(VerifyError.EXPIRED);
-        if (!ev.getCode().equals(code)) throw new VerifyException(VerifyError.INVALID);
+        else if (ev.isUsed()) throw new VerifyException(VerifyError.USED);
+        else if (ev.getExpiresAt().isBefore(Instant.now())) throw new VerifyException(VerifyError.EXPIRED);
+        else if (!ev.getCode().equals(code)) throw new VerifyException(VerifyError.INVALID);
+
         ev.setUsed(true);
         return repo.save(ev);
+    }*/
+    @Transactional
+    public EmailVerification verify(
+            String email,
+            VerificationPurpose purpose,
+            String code
+    ) throws VerifyException {
+
+        EmailVerification ev = repo
+                .findLatestNotUsed(email, purpose)
+                .orElseThrow(() ->
+                        new VerifyException(VerifyError.NOT_FOUND)
+                );
+
+        if (ev.getExpiresAt().isBefore(Instant.now())) {
+            throw new VerifyException(VerifyError.EXPIRED);
+        }
+
+        if (!ev.getCode().equals(code)) {
+            throw new VerifyException(VerifyError.INVALID);
+        }
+
+        // ✅ SUCCESS
+        ev.setUsed(true);
+
+        return repo.save(ev);
     }
+
 
     private String generateCode() {
         int n = 100000 + rnd.nextInt(900000);
         return String.valueOf(n);
     }
 
-    public enum VerifyError { NOT_FOUND, USED, EXPIRED, INVALID }
+    public enum VerifyError {NOT_FOUND, USED, EXPIRED, INVALID}
 
     public static class VerifyException extends Exception {
         private final VerifyError error;
-        public VerifyException(VerifyError error) { this.error = error; }
-        public VerifyError getError() { return error; }
+
+        public VerifyException(VerifyError error) {
+            this.error = error;
+        }
+
+        public VerifyError getError() {
+            return error;
+        }
     }
 }
