@@ -1,6 +1,8 @@
 package uz.codebyz.user.entity;
 
 import jakarta.persistence.*;
+import uz.codebyz.common.Helper;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -27,28 +29,59 @@ public class ProfileImage {
     @Column(nullable = false)
     private Instant uploadedAt;
 
-    public ProfileImage() {}
+    public ProfileImage() {
+    }
 
     @PrePersist
     public void prePersist() {
         this.uploadedAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public String getFileUrl() { return fileUrl; }
-    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+    public User getUser() {
+        return user;
+    }
 
-    public String getOriginalFileName() { return originalFileName; }
-    public void setOriginalFileName(String originalFileName) { this.originalFileName = originalFileName; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-    public long getFileSize() { return fileSize; }
-    public void setFileSize(long fileSize) { this.fileSize = fileSize; }
+    public String getFileUrl() {
+        return fileUrl;
+    }
 
-    public Instant getUploadedAt() { return uploadedAt; }
-    public void setUploadedAt(Instant uploadedAt) { this.uploadedAt = uploadedAt; }
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public Instant getUploadedAt() {
+        return uploadedAt;
+    }
+
+    public void setUploadedAt(Instant uploadedAt) {
+        this.uploadedAt = Helper.currentTimeInstant();
+    }
 }

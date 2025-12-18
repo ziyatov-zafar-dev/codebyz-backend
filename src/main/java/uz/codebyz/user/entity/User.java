@@ -1,6 +1,8 @@
 package uz.codebyz.user.entity;
 
 import jakarta.persistence.*;
+import uz.codebyz.common.Helper;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -61,7 +63,9 @@ public class User {
     private Instant approvalUpdatedAt;
     @Column(name = "approval_reason", length = 500)
     private String approvalReason;
-    public User() {}
+
+    public User() {
+    }
 
     @PrePersist
     public void prePersist() {
@@ -77,44 +81,109 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getUsername() {
+        return username;
+    }
 
-    public LocalDate getBirthDate() { return birthDate; }
-    public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public SocialLinks getSocialLinks() { return socialLinks; }
-    public void setSocialLinks(SocialLinks socialLinks) { this.socialLinks = socialLinks; }
+    public String getEmail() {
+        return email;
+    }
 
-    public boolean isEmailVerified() { return emailVerified; }
-    public void setEmailVerified(boolean emailVerified) { this.emailVerified = emailVerified; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
 
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
 
-    public List<ProfileImage> getProfileImages() { return profileImages; }
-    public void setProfileImages(List<ProfileImage> profileImages) { this.profileImages = profileImages; }
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 
-    public List<Certificate> getCertificates() { return certificates; }
-    public void setCertificates(List<Certificate> certificates) { this.certificates = certificates; }
+    public SocialLinks getSocialLinks() {
+        return socialLinks;
+    }
+
+    public void setSocialLinks(SocialLinks socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public List<ProfileImage> getProfileImages() {
+        return profileImages;
+    }
+
+    public void setProfileImages(List<ProfileImage> profileImages) {
+        this.profileImages = profileImages;
+    }
+
+    public List<Certificate> getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(List<Certificate> certificates) {
+        this.certificates = certificates;
+    }
 
     public UserRole getRole() {
         return role;
@@ -137,7 +206,7 @@ public class User {
     }
 
     public void setApprovalUpdatedAt(Instant approvalUpdatedAt) {
-        this.approvalUpdatedAt = approvalUpdatedAt;
+        this.approvalUpdatedAt = Helper.currentTimeInstant();
     }
 
     public String getApprovalReason() {
