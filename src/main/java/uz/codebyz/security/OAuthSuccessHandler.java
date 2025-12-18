@@ -28,8 +28,7 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         String email = null;
         if (authentication instanceof OAuth2AuthenticationToken token) {
@@ -38,31 +37,22 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
         }
 
         if (email == null) {
-            String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/error")
-                    .queryParam("errorCode", ErrorCode.OAUTH2_FAILED.name())
-                    .build().toUriString();
+            String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/error").queryParam("errorCode", ErrorCode.OAUTH2_FAILED.name()).build().toUriString();
             response.sendRedirect(url);
             return;
         }
 
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null) {
-            String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/error")
-                    .queryParam("errorCode", ErrorCode.GOOGLE_ACCOUNT_NOT_REGISTERED.name())
-                    .queryParam("email", email)
-                    .build().toUriString();
+            String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/error").queryParam("errorCode", ErrorCode.GOOGLE_ACCOUNT_NOT_REGISTERED.name()).queryParam("email", email).build().toUriString();
             response.sendRedirect(url);
             return;
         }
 
-        String access = jwtService.generateAccessToken(user.getId(), user.getEmail());
+        String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getRole());
         String refresh = jwtService.generateRefreshToken(user.getId(), user.getEmail());
 
-        String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/success")
-                .queryParam("email", email)
-                .queryParam("accessToken", access)
-                .queryParam("refreshToken", refresh)
-                .build().toUriString();
+        String url = UriComponentsBuilder.fromUriString(props.getFrontendBaseUrl() + "/success").queryParam("email", email).queryParam("accessToken", access).queryParam("refreshToken", refresh).build().toUriString();
         response.sendRedirect(url);
     }
 }

@@ -21,21 +21,42 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         String auth = request.getHeader("Authorization");
+
         if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring("Bearer ".length()).trim();
+            String token = auth.substring(7).trim();
+
             try {
                 JwtUser u = jwtService.parse(token);
+
                 if ("access".equals(u.getType())) {
-                    UsernamePasswordAuthenticationToken at =
-                            new UsernamePasswordAuthenticationToken(u, null, List.of(new SimpleGrantedAuthority("USER")));
-                    SecurityContextHolder.getContext().setAuthentication(at);
+
+                    // 🔥 MUHIM: ROLE TOKEN ICHIDAN OLINADI
+                    String role = u.getRole(); // masalan: ROLE_STUDENT
+
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    u,
+                                    null,
+                                    List.of(new SimpleGrantedAuthority(role))
+                            );
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authentication);
                 }
-            } catch (Exception ignored) {}
+
+            } catch (Exception e) {
+                // token noto‘g‘ri bo‘lsa — ignore
+            }
         }
+
         filterChain.doFilter(request, response);
     }
 }

@@ -1,11 +1,13 @@
 package uz.codebyz.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
+import uz.codebyz.user.entity.UserRole;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
@@ -14,49 +16,65 @@ import java.util.UUID;
 public class JwtService {
 
     private final JwtProperties props;
-    private final Key key;
+    private final SecretKey key;
 
     public JwtService(JwtProperties props) {
         this.props = props;
-        this.key = Keys.hmacShaKeyFor(props.getSecret().getBytes(StandardCharsets.UTF_8));
+        this.key = Keys.hmacShaKeyFor(
+                props.getSecret().getBytes(StandardCharsets.UTF_8)
+        );
     }
 
-    public String generateAccessToken(UUID userId, String email) {
+    // ================= ACCESS TOKEN =================
+    public String generateAccessToken(
+            UUID userId,
+            String email,
+            UserRole role
+    ) {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(props.getAccessTokenMinutes() * 60L);
+
         return Jwts.builder()
-                .subject(userId.toString())
+                .setSubject(userId.toString())
                 .claim("email", email)
+                .claim("role", "ROLE_" + role.name()) // 🔥 MUHIM
                 .claim("type", "access")
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(exp))
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(exp))
                 .signWith(key)
                 .compact();
     }
 
+    // ================= REFRESH TOKEN =================
     public String generateRefreshToken(UUID userId, String email) {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(props.getRefreshTokenDays() * 24L * 3600L);
+
         return Jwts.builder()
-                .subject(userId.toString())
+                .setSubject(userId.toString())
                 .claim("email", email)
                 .claim("type", "refresh")
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(exp))
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(exp))
                 .signWith(key)
                 .compact();
     }
 
+    // ================= PARSE TOKEN =================
     public JwtUser parse(String token) {
-        var claims = Jwts.parser()
-                .verifyWith((javax.crypto.SecretKey) key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
 
-        String sub = claims.getSubject();
+        Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        UUID userId = UUID.fromString(claims.getSubject());
         String email = claims.get("email", String.class);
+        String role = claims.get("role", String.class);
         String type = claims.get("type", String.class);
-        return new JwtUser(UUID.fromString(sub), email, type);
+
+        return new JwtUser(userId, email, role, type);
     }
 }

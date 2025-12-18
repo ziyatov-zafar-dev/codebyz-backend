@@ -172,7 +172,9 @@ public class AuthService {
         String accessToken =
                 jwtService.generateAccessToken(
                         user.getId(),
-                        user.getEmail()
+                        user.getEmail(),
+                        user.getRole()
+
                 );
 
         String refreshToken =
@@ -240,7 +242,6 @@ public class AuthService {
             SignUpRequest original,
             VerifyCodeRequest verify
     ) {
-
         String email = original.getEmail().trim().toLowerCase();
         String username = original.getUsername().trim().toLowerCase();
 
