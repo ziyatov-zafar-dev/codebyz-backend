@@ -12,6 +12,16 @@ public class SocialLinks {
     private String linkedin;
     private String twitter;
 
+    public SocialLinks(String telegram, String github, String website, String instagram, String facebook, String linkedin, String twitter) {
+        this.telegram = telegram;
+        this.github = github;
+        this.website = website;
+        this.instagram = instagram;
+        this.facebook = facebook;
+        this.linkedin = linkedin;
+        this.twitter = twitter;
+    }
+
     public SocialLinks() {}
 
     public String getTelegram() { return telegram; }

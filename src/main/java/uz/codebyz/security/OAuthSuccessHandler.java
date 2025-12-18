@@ -63,7 +63,6 @@ public class OAuthSuccessHandler implements AuthenticationSuccessHandler {
                 .queryParam("accessToken", access)
                 .queryParam("refreshToken", refresh)
                 .build().toUriString();
-
         response.sendRedirect(url);
     }
 }
