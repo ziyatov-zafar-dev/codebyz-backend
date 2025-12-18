@@ -126,6 +126,7 @@ public class UserService {
         r.setSocialLinks(u.getSocialLinks());
         List<ProfileImageDto> imgs = u.getProfileImages().stream().map(this::mapImage).collect(Collectors.toList());
         r.setProfileImages(imgs);
+        r.setRole(u.getRole());
         return r;
     }
 

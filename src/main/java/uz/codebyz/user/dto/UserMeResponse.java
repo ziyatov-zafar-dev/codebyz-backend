@@ -1,6 +1,8 @@
 package uz.codebyz.user.dto;
 
 import uz.codebyz.user.entity.SocialLinks;
+import uz.codebyz.user.entity.UserRole;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +15,15 @@ public class UserMeResponse {
     private LocalDate birthDate;
     private SocialLinks socialLinks;
     private List<ProfileImageDto> profileImages;
+    private UserRole role;
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
 
     public UserMeResponse() {}
 

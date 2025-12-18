@@ -11,6 +11,5 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public enum UserRole {
     STUDENT,
     TEACHER,
-    @JsonIgnore
     ADMIN
 }
