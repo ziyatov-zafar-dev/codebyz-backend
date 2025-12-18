@@ -118,6 +118,19 @@ public enum ErrorCode {
             "Foydalanuvchi bloklanmagan",
             "User is not blocked",
             "Kullanıcı engellenmemiş"
+    ), CHAT_NOT_FOUND("Chat topilmadi",
+            "Chat not found",
+            "Sohbet bulunamadı"),
+    CHAT_ALREADY_EXISTS(
+            "Chat allaqachon mavjud",
+            "Chat already exists",
+            "Sohbet zaten mevcut"
+    ),
+
+    INVALID_REQUEST(
+            "Noto‘g‘ri so‘rov",
+            "Invalid request",
+            "Geçersiz istek"
     );
     private final String uz;
     private final String en;

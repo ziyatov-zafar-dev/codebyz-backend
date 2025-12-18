@@ -45,7 +45,8 @@ public class SecurityConfig {
     public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -63,17 +64,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
+                        .requestMatchers("/api/chats/**").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
+                        .requestMatchers("/api/messages/**").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
                         .requestMatchers("/api/users/me").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
 
                 // API uchun OAuth2 loginni umuman qo‘ymaymiz
                 .oauth2Login(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable);
-
         return http.build();
     }
 
@@ -85,7 +86,8 @@ public class SecurityConfig {
     public SecurityFilterChain oauthChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/oauth2/**", "/login/**", "/swagger-ui/**", "/v3/api-docs/**", "/files/**")
-                .cors(cors -> {})
+                .cors(cors -> {
+                })
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
