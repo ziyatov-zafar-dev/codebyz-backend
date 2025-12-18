@@ -109,4 +109,24 @@ public class AdminUserRestController {
     public ResponseDto<UserResponse> unblockUser(@Parameter(description = "Foydalanuvchi ID") @PathVariable UUID userId) {
         return adminUserService.unblockUser(userId);
     }
+
+
+    @GetMapping("search")
+    public ResponseEntity<ResponseDto<Page<UserResponse>>> search(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam("query") String query
+    ) {
+        return ResponseEntity.ok(adminUserService.search(page, size, null, query));
+    }
+
+    @GetMapping("search-with-approval-status")
+    public ResponseEntity<ResponseDto<Page<UserResponse>>> searchWithStatus(
+            @RequestParam("page") int page,
+            @RequestParam("size") int size,
+            @RequestParam("status") ApprovalStatus status,
+            @RequestParam("query") String query
+    ) {
+        return ResponseEntity.ok(adminUserService.search(page, size, status, query));
+    }
 }

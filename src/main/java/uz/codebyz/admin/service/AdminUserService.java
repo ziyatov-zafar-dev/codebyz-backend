@@ -12,6 +12,7 @@ import java.util.UUID;
 
 public interface AdminUserService {
     ResponseDto<Page<UserResponse>> findAllUsers(int page, int size);
+    ResponseDto<Page<UserResponse>> search(int page, int size,ApprovalStatus approvalStatus,String query);
 
     ResponseDto<Page<UserResponse>> findAllUsersByApprovalStatus(int page, int size, ApprovalStatus status);
 

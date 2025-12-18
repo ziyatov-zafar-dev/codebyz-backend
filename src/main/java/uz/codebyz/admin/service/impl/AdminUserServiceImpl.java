@@ -199,5 +199,23 @@ public class AdminUserServiceImpl implements AdminUserService {
                 userMapper.toDto(savedUser)
         );
     }
+
+    @Override
+    public ResponseDto<Page<UserResponse>> search(int page, int size, ApprovalStatus status, String q) {
+        log.info("Admin requested search users | page={}, size={}", page, size);
+
+        Page<User> allUsers =
+                userRepository.search(PageRequest.of(page, size), q, status);
+
+        log.info("Fetched {} users", allUsers.getTotalElements());
+
+        Page<UserResponse> userResponsePage =
+                allUsers.map(userMapper::toDto);
+
+        return ResponseDto.ok(
+                "Kullanıcılar başarıyla getirildi",
+                userResponsePage
+        );
+    }
 }
 
