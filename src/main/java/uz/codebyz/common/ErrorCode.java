@@ -1,94 +1,143 @@
 package uz.codebyz.common;
 
-/**
- * API Error Codes
- */
 public enum ErrorCode {
 
-    /**
-     * Request validatsiyadan o'tmadi
-     */
-    VALIDATION_ERROR,
+    VALIDATION_ERROR(
+            "So‘rov ma’lumotlari noto‘g‘ri",
+            "Request validation failed",
+            "İstek doğrulaması başarısız"
+    ),
 
-    /**
-     * User topilmadi
-     */
-    USER_NOT_FOUND,
+    USER_NOT_FOUND(
+            "Foydalanuvchi topilmadi",
+            "User not found",
+            "Kullanıcı bulunamadı"
+    ),
 
-    /**
-     * Login yoki parol xato
-     */
-    BAD_CREDENTIALS,
+    BAD_CREDENTIALS(
+            "Login yoki parol noto‘g‘ri",
+            "Invalid username or password",
+            "Kullanıcı adı veya şifre hatalı"
+    ),
 
-    /**
-     * Username band
-     */
-    USERNAME_TAKEN,
+    USERNAME_TAKEN(
+            "Username band",
+            "Username already taken",
+            "Kullanıcı adı zaten alınmış"
+    ),
 
-    /**
-     * Email band
-     */
-    EMAIL_TAKEN,
+    EMAIL_TAKEN(
+            "Email band",
+            "Email already taken",
+            "Email zaten kullanımda"
+    ),
 
-    /**
-     * Email verifikatsiya qilinmagan
-     */
-    EMAIL_NOT_VERIFIED,
+    EMAIL_NOT_VERIFIED(
+            "Email tasdiqlanmagan",
+            "Email not verified",
+            "Email doğrulanmamış"
+    ),
 
-    /**
-     * Email verifikatsiya kodi eskirib ketgan
-     */
-    CODE_EXPIRED,
+    CODE_EXPIRED(
+            "Tasdiqlash kodi eskirgan",
+            "Verification code expired",
+            "Doğrulama kodu süresi dolmuş"
+    ),
 
-    /**
-     * Verifikatsiya kodi noto'g'ri
-     */
-    CODE_INVALID,
+    CODE_INVALID(
+            "Tasdiqlash kodi noto‘g‘ri",
+            "Invalid verification code",
+            "Doğrulama kodu geçersiz"
+    ),
 
-    /**
-     * Verifikatsiya kodi oldin ishlatilgan
-     */
-    CODE_ALREADY_USED,
+    CODE_ALREADY_USED(
+            "Tasdiqlash kodi allaqachon ishlatilgan",
+            "Verification code already used",
+            "Doğrulama kodu daha önce kullanılmış"
+    ),
 
-    /**
-     * Login urinishlari sabab bloklangan
-     */
-    USER_LOCKED,
+    USER_LOCKED(
+            "Foydalanuvchi vaqtincha bloklangan",
+            "User is temporarily locked",
+            "Kullanıcı geçici olarak kilitlendi"
+    ),
 
-    /**
-     * Admin hali tasdiqlamagan (CHECKING)
-     */
-    ACCOUNT_CHECKING,
+    ACCOUNT_CHECKING(
+            "Hisob admin tomonidan tekshirilmoqda",
+            "Account is under admin review",
+            "Hesap yönetici tarafından inceleniyor"
+    ),
 
-    /**
-     * Admin rad etgan (CANCEL)
-     */
-    ACCOUNT_CANCELLED,
+    ACCOUNT_CANCELLED(
+            "Hisob admin tomonidan bekor qilingan",
+            "Account has been rejected",
+            "Hesap yönetici tarafından reddedildi"
+    ),
 
-    /**
-     * Sign-up orqali ruxsat etilmagan role
-     */
-    ROLE_NOT_ALLOWED,
+    ROLE_NOT_ALLOWED(
+            "Ushbu rol bilan ro‘yxatdan o‘tish mumkin emas",
+            "Role is not allowed",
+            "Bu rol ile kayıt olunamaz"
+    ),
 
-    /**
-     * OAuth2 jarayonida xatolik
-     */
-    OAUTH2_FAILED,
+    OAUTH2_FAILED(
+            "OAuth2 jarayonida xatolik",
+            "OAuth2 authentication failed",
+            "OAuth2 kimlik doğrulaması başarısız"
+    ),
 
-    /**
-     * Google email bazada yo'q (sign-up yo'q, faqat sign-in)
-     */
-    GOOGLE_ACCOUNT_NOT_REGISTERED,
+    GOOGLE_ACCOUNT_NOT_REGISTERED(
+            "Google akkaunt tizimda mavjud emas",
+            "Google account is not registered",
+            "Google hesabı sistemde kayıtlı değil"
+    ),
 
-    /**
-     * Ruxsat yo'q
-     */
-    NOT_AUTHORIZED,
+    NOT_AUTHORIZED(
+            "Ruxsat yo‘q",
+            "Not authorized",
+            "Yetkisiz erişim"
+    ),
 
-    /**
-     * Server ichki xato
-     */
-    INTERNAL_ERROR,
-    INVALID_TOKEN
+    INVALID_TOKEN(
+            "Token yaroqsiz yoki eskirgan",
+            "Invalid or expired token",
+            "Geçersiz veya süresi dolmuş token"
+    ),
 
+    INTERNAL_ERROR(
+            "Server ichki xatosi",
+            "Internal server error",
+            "Sunucu iç hatası"
+    ),
+    USER_ALREADY_BLOCKED(
+            "Foydalanuvchi allaqachon bloklangan",
+            "User is already blocked",
+            "Kullanıcı zaten engellenmiş"
+    ),
+    USER_NOT_BLOCKED(
+            "Foydalanuvchi bloklanmagan",
+            "User is not blocked",
+            "Kullanıcı engellenmemiş"
+    );
+    private final String uz;
+    private final String en;
+    private final String tr;
+
+    ErrorCode(String uz, String en, String tr) {
+        this.uz = uz;
+        this.en = en;
+        this.tr = tr;
+    }
+
+    public String getUz() {
+        return uz;
+    }
+
+    public String getEn() {
+        return en;
+    }
+
+    public String getTr() {
+        return tr;
+    }
 }

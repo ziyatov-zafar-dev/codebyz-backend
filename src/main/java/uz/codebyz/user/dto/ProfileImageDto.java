@@ -12,6 +12,14 @@ public class ProfileImageDto {
 
     public ProfileImageDto() {}
 
+    public ProfileImageDto(UUID id, String fileUrl, String originalFileName, long fileSize, Instant uploadedAt) {
+        this.id = id;
+        this.fileUrl = fileUrl;
+        this.originalFileName = originalFileName;
+        this.fileSize = fileSize;
+        this.uploadedAt = uploadedAt;
+    }
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 

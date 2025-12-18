@@ -24,10 +24,19 @@ public class ProfileImage {
     private String originalFileName;
 
     @Column(nullable = false)
-    private long fileSize;
-
+    private Long fileSize;
+    private Boolean active = true;
     @Column(nullable = false)
     private Instant uploadedAt;
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
 
     public ProfileImage() {
     }
@@ -69,11 +78,11 @@ public class ProfileImage {
         this.originalFileName = originalFileName;
     }
 
-    public long getFileSize() {
+    public Long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(long fileSize) {
+    public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
 

@@ -49,8 +49,12 @@ sendgrid:
   from-name: CodeByZ
 
 storage:
+  base-url: ${BACKEND}
   uploads-dir: uploads
   public-base-url: ${BACKEND}/files
+  profile:
+    base:
+      url: files/profile
 
 verification:
   sign-up-code-minutes: 10

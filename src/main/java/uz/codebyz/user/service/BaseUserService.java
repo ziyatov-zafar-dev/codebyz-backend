@@ -1,10 +1,14 @@
 package uz.codebyz.user.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import uz.codebyz.common.ErrorCode;
+import uz.codebyz.common.Helper;
 import uz.codebyz.common.ResponseDto;
+import uz.codebyz.helper.FileHelper;
+import uz.codebyz.helper.UploadFileResponseDto;
 import uz.codebyz.security.JwtUser;
 import uz.codebyz.storage.FileStorageService;
 import uz.codebyz.user.dto.*;
@@ -14,21 +18,27 @@ import uz.codebyz.user.entity.User;
 import uz.codebyz.user.repo.ProfileImageRepository;
 import uz.codebyz.user.repo.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class BaseUserService {
 
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final FileStorageService storage;
+    private final FileHelper fileHelper;
 
-    public UserService(UserRepository userRepository, ProfileImageRepository profileImageRepository, FileStorageService storage) {
+    @Value("${storage.profile.base.url}")
+    private String profileBaseUrl;
+
+    public BaseUserService(UserRepository userRepository, ProfileImageRepository profileImageRepository, FileStorageService storage, FileHelper fileHelper) {
         this.userRepository = userRepository;
         this.profileImageRepository = profileImageRepository;
         this.storage = storage;
+        this.fileHelper = fileHelper;
     }
 
     public ResponseDto<UserMeResponse> me(JwtUser principal) {
@@ -85,17 +95,25 @@ public class UserService {
         if (user == null) return ResponseDto.fail(404, ErrorCode.USER_NOT_FOUND, "User topilmadi");
 
         try {
-            FileStorageService.StoredFile stored = storage.store(file, "profile");
+            ResponseDto<UploadFileResponseDto> savedFile = fileHelper.uploadFile(file, profileBaseUrl);
+            if (!savedFile.isSuccess()) {
+                return new ResponseDto<>(
+                        false, savedFile.getMessage(),
+                        savedFile.getCode(), savedFile.getErrorCode(),
+                        null
+                );
+            }
+            UploadFileResponseDto data = savedFile.getData();
             ProfileImage img = new ProfileImage();
             img.setUser(user);
-            img.setFileUrl(stored.getPublicUrl());
-            img.setOriginalFileName(stored.getOriginalFileName());
-            img.setFileSize(stored.getSize());
+            img.setFileUrl(data.getFileUrl());
+            img.setOriginalFileName(data.getFileName());
+            img.setFileSize(data.getFileSize());
+            img.setUploadedAt(Helper.currentTimeInstant());
+            img.setActive(true);
             profileImageRepository.save(img);
-
             user.getProfileImages().add(img);
             userRepository.save(user);
-
             return ResponseDto.ok("Rasm qo'shildi", mapImage(img));
         } catch (Exception e) {
             return ResponseDto.fail(500, ErrorCode.INTERNAL_ERROR, "File saqlashda xatolik");
@@ -124,7 +142,18 @@ public class UserService {
         r.setEmail(u.getEmail());
         r.setBirthDate(u.getBirthDate());
         r.setSocialLinks(u.getSocialLinks());
-        List<ProfileImageDto> imgs = u.getProfileImages().stream().map(this::mapImage).collect(Collectors.toList());
+//        List<ProfileImageDto> imgs = u.getProfileImages().stream().map(this::mapImage).collect(Collectors.toList());
+        List<ProfileImageDto> imgs = new ArrayList<>();
+        u.getProfileImages().stream().filter(ProfileImage::getActive).forEach(profileImage -> {
+            imgs.add(new ProfileImageDto(
+                    profileImage.getId(),
+                    profileImage.getFileUrl(),
+                    profileImage.getOriginalFileName(),
+                    profileImage.getFileSize(),
+                    profileImage.getUploadedAt()
+            ));
+        });
+
         r.setProfileImages(imgs);
         r.setRole(u.getRole());
         return r;
