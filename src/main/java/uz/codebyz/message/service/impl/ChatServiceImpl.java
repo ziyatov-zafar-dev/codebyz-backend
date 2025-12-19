@@ -96,7 +96,7 @@ public class ChatServiceImpl implements ChatService {
         );
     }
 
-    @Override
+    /*@Override
     public ResponseDto<ChatResponse> createChat(UUID user1Id, UUID user2Id) throws Exception {
         if (user1Id.equals(user2Id)) {
             return ResponseDto.fail(
@@ -157,7 +157,74 @@ public class ChatServiceImpl implements ChatService {
                 "Sohbet başarıyla oluşturuldu.",
                 chatMapper.toDto(savedChat, null)
         );
+    }*/
+    @Override
+    public ResponseDto<ChatResponse> createChat(UUID user1Id, UUID user2Id) throws Exception {
+
+        if (user1Id.equals(user2Id)) {
+            return ResponseDto.fail(
+                    400,
+                    ErrorCode.INVALID_REQUEST,
+                    "Kendinle konuşamazsın."
+            );
+        }
+
+        // 🔹 Userlarni tekshirish (oldin tekshirish to‘g‘riroq)
+        User user1 = userRepository.findById(user1Id)
+                .orElseThrow(() -> new Exception("User not found: " + user1Id));
+
+        User user2 = userRepository.findById(user2Id)
+                .orElseThrow(() -> new Exception("User not found: " + user2Id));
+
+        Optional<Chat> chatOp = chatRepository.findByChat(user1Id, user2Id);
+
+        Chat chat;
+
+        if (chatOp.isPresent()) {
+            chat = chatOp.get();
+
+            // ❌ ACTIVE bo‘lsa — xatolik
+            if (chat.getStatus() == ChatStatus.ACTIVE) {
+                return ResponseDto.fail(
+                        409,
+                        ErrorCode.CHAT_ALREADY_EXISTS,
+                        "Bu kullanıcılar arasında zaten bir sohbet mevcut."
+                );
+            }
+
+            // ♻️ DELETE bo‘lsa — qayta faollashtiramiz
+            if (chat.getStatus() == ChatStatus.DELETE) {
+                chat.setStatus(ChatStatus.ACTIVE);
+                chat.setLastMessageId(null);
+                chat.setLastMessageTime(null);
+                chat.setUpdatedAt(Helper.currentTimeInstant());
+            }
+
+        } else {
+            // 🆕 Yangi chat
+            chat = new Chat();
+            chat.setUser1(user1);
+            chat.setUser2(user2);
+            chat.setStatus(ChatStatus.ACTIVE);
+            chat.setCreatedAt(Helper.currentTimeInstant());
+            chat.setUpdatedAt(Helper.currentTimeInstant());
+            chat.setMessages(new ArrayList<>());
+        }
+
+        Chat savedChat = chatRepository.save(chat);
+
+        log.info(
+                "Chat created/reactivated | chatId={}, user1Id={}, user2Id={}",
+                savedChat.getId(), user1Id, user2Id
+        );
+
+        return ResponseDto.ok(
+                "Sohbet başarıyla oluşturuldu.",
+                chatMapper.toDto(savedChat, null)
+        );
     }
+
+
 
     @Override
     public ResponseDto<Void> deleteChat(UUID chatId) {
