@@ -1,8 +1,11 @@
 package uz.codebyz.message.rest;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import uz.codebyz.common.ResponseDto;
+import uz.codebyz.helper.UploadFileResponseDto;
 import uz.codebyz.message.dto.message.MessageResponse;
 import uz.codebyz.message.dto.message.request.EditMessageRequest;
 import uz.codebyz.message.dto.message.request.SendMessageRequest;
@@ -32,5 +35,12 @@ public class MessageRestController {
     @DeleteMapping("delete-message/{messageId}")
     public ResponseEntity<ResponseDto<Void>> deleteMessage(@PathVariable("messageId") UUID messageId) {
         return ResponseEntity.ok(messageService.deleteMessage(messageId));
+    }
+
+    @PostMapping(value = "upload-file",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDto<UploadFileResponseDto>> uploadFile(
+            @RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(messageService.uploadFile(file));
     }
 }

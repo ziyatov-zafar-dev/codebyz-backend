@@ -1,6 +1,8 @@
 package uz.codebyz.message.service;
 
+import org.springframework.web.multipart.MultipartFile;
 import uz.codebyz.common.ResponseDto;
+import uz.codebyz.helper.UploadFileResponseDto;
 import uz.codebyz.message.dto.chat.ChatResponse;
 import uz.codebyz.message.dto.message.MessageResponse;
 import uz.codebyz.message.dto.message.request.EditMessageRequest;
@@ -15,4 +17,5 @@ public interface MessageService {
     ResponseDto<MessageResponse> editMessage(EditMessageRequest req);
 
     ResponseDto<Void> deleteMessage(UUID messageId);
+    ResponseDto<UploadFileResponseDto>uploadFile(MultipartFile file);
 }

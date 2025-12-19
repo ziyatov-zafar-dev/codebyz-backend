@@ -3,9 +3,12 @@ package uz.codebyz.message.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import uz.codebyz.common.ErrorCode;
 import uz.codebyz.common.Helper;
 import uz.codebyz.common.ResponseDto;
+import uz.codebyz.helper.FileHelper;
+import uz.codebyz.helper.UploadFileResponseDto;
 import uz.codebyz.message.dto.message.MessageResponse;
 import uz.codebyz.message.dto.message.request.EditMessageRequest;
 import uz.codebyz.message.dto.message.request.SendMessageRequest;
@@ -30,12 +33,14 @@ public class MessageServiceImpl implements MessageService {
     private final UserRepository userRepository;
     private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
+    private final FileHelper fileHelper;
 
-    public MessageServiceImpl(MessageRepository messageRepository, UserRepository userRepository, ChatRepository chatRepository, MessageMapper messageMapper) {
+    public MessageServiceImpl(MessageRepository messageRepository, UserRepository userRepository, ChatRepository chatRepository, MessageMapper messageMapper, FileHelper fileHelper) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.chatRepository = chatRepository;
         this.messageMapper = messageMapper;
+        this.fileHelper = fileHelper;
     }
 
     @Override
@@ -50,7 +55,6 @@ public class MessageServiceImpl implements MessageService {
             );
         }
         Optional<Chat> chatOp = chatRepository.findById(req.getChatId());
-        boolean delete = false;
         if (chatOp.isEmpty()) {
             log.error("Chat not found: {}", req.getSenderUserId());
             return ResponseDto.fail(
@@ -156,5 +160,10 @@ public class MessageServiceImpl implements MessageService {
         message.setDeleted(true);
         messageRepository.save(message);
         return ResponseDto.ok("Success", null);
+    }
+
+    @Override
+    public ResponseDto<UploadFileResponseDto> uploadFile(MultipartFile file) {
+        return fileHelper.uploadFile(file, "files/message");
     }
 }
