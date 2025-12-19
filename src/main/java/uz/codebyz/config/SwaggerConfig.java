@@ -22,7 +22,7 @@ public class SwaggerConfig {
                         .contact(new Contact()
                                 .name("Zafar Ziyatov")
                                 .email("ziyatovzafar98@gmail.com")
-                                .url("http://localhost:8080")
+                                .url("https://codebyz.online")
                         )
                 )
                 .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
