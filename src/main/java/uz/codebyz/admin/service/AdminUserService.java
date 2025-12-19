@@ -21,4 +21,6 @@ public interface AdminUserService {
     ResponseDto<UserResponse> blockUser(UUID userId);
 
     ResponseDto<UserResponse> unblockUser(UUID userId);
+
+    ResponseDto<Boolean> checkBlock(UUID userid);
 }

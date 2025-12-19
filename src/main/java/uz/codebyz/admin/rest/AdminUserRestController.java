@@ -75,6 +75,11 @@ public class AdminUserRestController {
         return ResponseEntity.ok(adminUserService.findAllUsersByApprovalStatus(page, size, ApprovalStatus.CANCEL));
     }
 
+    @GetMapping("/user-is-block")
+    public ResponseEntity<ResponseDto<Boolean>> checkBlock(@RequestParam("userid") UUID userid) {
+        return ResponseEntity.ok(adminUserService.checkBlock(userid));
+    }
+
     // ================= CHANGE APPROVAL STATUS =================
 
     @Operation(summary = "Foydalanuvchi onay holatini o‘zgartirish", description = """
@@ -87,8 +92,9 @@ public class AdminUserRestController {
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Onay holati muvaffaqiyatli yangilandi"), @ApiResponse(responseCode = "404", description = "Foydalanuvchi topilmadi")})
     @PutMapping("/{userId}/approval-status")
     public ResponseDto<UserResponse> changeApprovalStatus(@Parameter(description = "Foydalanuvchi ID", example = "550e8400-e29b-41d4-a716-446655440000") @PathVariable("userId") UUID userId,
-
-                                                          @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Onay holatini o‘zgartirish uchun ma’lumot", required = true) @Valid @RequestBody AdminChangeApprovalStatusRequest req) {
+                                                          @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                                                                  description = "Onay holatini o‘zgartirish uchun ma’lumot", required = true)
+                                                          @Valid @RequestBody AdminChangeApprovalStatusRequest req) {
         return adminUserService.changeApprovalStatus(req, userId);
     }
 

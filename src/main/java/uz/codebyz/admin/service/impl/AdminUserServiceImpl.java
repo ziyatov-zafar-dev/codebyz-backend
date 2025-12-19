@@ -163,6 +163,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     }
 
     @Override
+    public ResponseDto<Boolean> checkBlock(UUID userid) {
+        Optional<User> uOp = userRepository.findById(userid);
+        if (uOp.isEmpty()) {
+            return ResponseDto.fail(404, ErrorCode.USER_NOT_FOUND, ErrorCode.USER_NOT_FOUND.getTr());
+        }
+        User user = uOp.get();
+        return ResponseDto.ok("Success", !user.isActive());
+    }
+
+    @Override
     public ResponseDto<UserResponse> unblockUser(UUID userId) {
         log.info("Admin attempting to unblock user | userId={}", userId);
 
