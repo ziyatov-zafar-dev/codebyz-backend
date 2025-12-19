@@ -73,24 +73,28 @@ public class MessageServiceImpl implements MessageService {
                 );
             }
         }
-        Optional<Message> mOp = messageRepository.findById(req.getReplyToMessageId());
-        if (mOp.isEmpty()) {
-            log.error("Message not found: {}", req.getReplyToMessageId());
-            return ResponseDto.fail(
-                    404,
-                    ErrorCode.MESSAGE_NOT_FOUND,
-                    ErrorCode.MESSAGE_NOT_FOUND.getTr()
-            );
-        } else {
-            if (mOp.get().isDeleted()) {
+        Optional<Message> mOp = Optional.empty();
+        if (req.getReplyToMessageId() != null) {
+            mOp = messageRepository.findById(req.getReplyToMessageId());
+            if (mOp.isEmpty()) {
                 log.error("Message not found: {}", req.getReplyToMessageId());
                 return ResponseDto.fail(
                         404,
                         ErrorCode.MESSAGE_NOT_FOUND,
                         ErrorCode.MESSAGE_NOT_FOUND.getTr()
                 );
+            } else {
+                if (mOp.get().isDeleted()) {
+                    log.error("Message not found: {}", req.getReplyToMessageId());
+                    return ResponseDto.fail(
+                            404,
+                            ErrorCode.MESSAGE_NOT_FOUND,
+                            ErrorCode.MESSAGE_NOT_FOUND.getTr()
+                    );
+                }
             }
         }
+
         Chat chat = chatOp.get();
         Message message = new Message();
         message.setSender(uOp.get());
@@ -101,7 +105,7 @@ public class MessageServiceImpl implements MessageService {
         message.setFileName(req.getFileName());
         message.setFileSize(req.getFileSize());
         message.setStatus(MessageStatus.SENT);
-        message.setReplyTo(mOp.get());
+        message.setReplyTo(mOp.orElse(null));
         message.setDeleted(false);
         message.setCreatedAt(Helper.currentTimeInstant());
         message.setUpdatedAt(Helper.currentTimeInstant());
