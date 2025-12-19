@@ -107,10 +107,16 @@ public class MessageServiceImpl implements MessageService {
         message.setStatus(MessageStatus.SENT);
         message.setReplyTo(mOp.orElse(null));
         message.setDeleted(false);
+
+
         message.setCreatedAt(Helper.currentTimeInstant());
         message.setUpdatedAt(Helper.currentTimeInstant());
         message.setEdited(false);
-        return ResponseDto.ok("Success", messageMapper.toDto(messageRepository.save(message)));
+        message = messageRepository.save(message);
+        chat.setLastMessageTime(Helper.currentTimeInstant());
+        chat.setLastMessageId(message.getId());
+        chatRepository.save(chat);
+        return ResponseDto.ok("Success", messageMapper.toDto(message));
     }
 
     @Override
