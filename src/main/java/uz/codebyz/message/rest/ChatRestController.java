@@ -54,10 +54,10 @@ public class ChatRestController {
 
     @PostMapping("create-chat")
     public ResponseEntity<ResponseDto<ChatResponse>> createChat(
-            @RequestParam("user1id") UUID user1id,
-            @RequestParam("user2id") UUID user2id
+            @AuthenticationPrincipal JwtUser user,
+            @RequestParam("userid") UUID userid
     ) throws Exception {
-        return ResponseEntity.ok(chatService.createChat(user1id, user2id));
+        return ResponseEntity.ok(chatService.createChat(user.getUserId(), userid));
     }
 
     @GetMapping("chat/{chatId}")

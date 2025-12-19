@@ -98,7 +98,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ResponseDto<ChatResponse> createChat(UUID user1Id, UUID user2Id) throws Exception {
-
         if (user1Id.equals(user2Id)) {
             return ResponseDto.fail(
                     400,
@@ -108,11 +107,9 @@ public class ChatServiceImpl implements ChatService {
         }
 
         // 🔹 UUID tartiblash (duplicate chat oldini olish)
-        UUID first = user1Id.compareTo(user2Id) < 0 ? user1Id : user2Id;
-        UUID second = user1Id.compareTo(user2Id) < 0 ? user2Id : user1Id;
 
         // 🔹 Chat mavjudligini tekshirish
-        Optional<Chat> chatOp = chatRepository.findByChat(first, second);
+        Optional<Chat> chatOp = chatRepository.findByChat(user1Id, user2Id);
         if (chatOp.isPresent() && chatOp.get().getStatus() == ChatStatus.ACTIVE) {
             log.warn("Chat already exists | user1Id={}, user2Id={}", user1Id, user2Id);
             return ResponseDto.fail(
@@ -133,8 +130,8 @@ public class ChatServiceImpl implements ChatService {
         // 🔹 Chat yaratish
         Chat chat;
         chat = chatOp.orElseGet(Chat::new);
-        chat.setUser1(first.equals(user1Id) ? user1 : user2);
-        chat.setUser2(first.equals(user1Id) ? user2 : user1);
+        chat.setUser1(user1);
+        chat.setUser2(user2);
         chat.setStatus(ChatStatus.ACTIVE);
         chat.setLastMessageId(null);
         chat.setLastMessageTime(null);
@@ -147,7 +144,6 @@ public class ChatServiceImpl implements ChatService {
                 "Chat created successfully | chatId={}, user1Id={}, user2Id={}",
                 savedChat.getId(), user1Id, user2Id
         );
-
         return ResponseDto.ok(
                 "Sohbet başarıyla oluşturuldu.",
                 chatMapper.toDto(savedChat, null)
