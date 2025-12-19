@@ -27,7 +27,6 @@ public class Message {
     private String content;
     @Column(length = 1000)
     private String fileUrl;
-    @Column(length = 255)
     private String fileName;
     private Long fileSize;
     @Enumerated(EnumType.STRING)
