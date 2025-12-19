@@ -23,6 +23,7 @@ public class VerificationService {
     }
 
     public EmailVerification create(String email, VerificationPurpose purpose) {
+        repo.invalidateActiveCodes(email, purpose);
         EmailVerification ev = new EmailVerification();
         ev.setEmail(email);
         ev.setPurpose(purpose);
