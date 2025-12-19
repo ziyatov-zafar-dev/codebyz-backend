@@ -24,7 +24,6 @@ public class FilesController {
             @PathVariable String subdir,
             @PathVariable String filename
     ) throws MalformedURLException {
-
         Path file = Path.of(props.getUploadsDir())
                 .toAbsolutePath()
                 .normalize()
