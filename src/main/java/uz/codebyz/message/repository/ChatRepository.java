@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.codebyz.message.entity.Chat;
+import uz.codebyz.message.entity.enums.ChatStatus;
 import uz.codebyz.user.entity.User;
 
 import java.util.List;
@@ -57,19 +58,36 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
     List<Chat> findAllActiveChatsByUser(@Param("userId") UUID userId);
 
 
-
-
-
-
-
-
-
-
-
     Optional<Chat> findByUser1AndUser2(User user1, User user2);
 
     Optional<Chat> findByUser2AndUser1(User user2, User user1);
 
     @Query("select ch from Chat ch where ch.id=:id and ch.status=uz.codebyz.message.entity.enums.ChatStatus.ACTIVE")
     Optional<Chat> findByChatId(@Param("id") UUID chatid);
+
+    @Query("""
+                select c from Chat c
+                where (c.user1.id = :userId or c.user2.id = :userId)
+                  and c.status = uz.codebyz.message.entity.enums.ChatStatus.ACTIVE
+                  and c.lastMessageId is not null
+                  and exists (
+                      select 1 from Message m
+                      where m.id = c.lastMessageId
+                        and m.status = uz.codebyz.message.entity.enums.MessageStatus.SENT
+                        and m.sender.id <> :userId
+                  )
+            """)
+    List<Chat> findUnreadChats(@Param("userId") UUID userId);
+
+    @Query("""
+                select
+                    case when count(c) > 0 then true else false end
+                from Chat c
+                where c.id = :chatId
+                  and c.status = :status
+            """)
+    boolean existsByIdAndStatus(
+            @Param("chatId") UUID chatId,
+            @Param("status") ChatStatus status
+    );
 }

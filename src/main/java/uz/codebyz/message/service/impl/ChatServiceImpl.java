@@ -3,6 +3,7 @@ package uz.codebyz.message.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.codebyz.common.ErrorCode;
 import uz.codebyz.common.Helper;
 import uz.codebyz.common.ResponseDto;
@@ -288,64 +289,49 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ResponseDto<Void> readChatMessages(UUID chatid) {
-        Optional<Chat> chatOp = chatRepository.findByChatId(chatid);
-        if (chatOp.isEmpty()) {
-            return ResponseDto.fail(404, ErrorCode.CHAT_NOT_FOUND, ErrorCode.CHAT_NOT_FOUND.getTr());
+    @Transactional
+    public ResponseDto<Void> readChatMessages(UUID chatId) {
+
+        boolean exists = chatRepository.existsByIdAndStatus(chatId, ChatStatus.ACTIVE);
+        if (!exists) {
+            return ResponseDto.fail(
+                    404,
+                    ErrorCode.CHAT_NOT_FOUND,
+                    ErrorCode.CHAT_NOT_FOUND.getTr()
+            );
         }
-        for (Message message : chatOp.get().getMessages().stream().filter(message -> message.getStatus() == MessageStatus.SENT).toList()) {
-            try {
-                message.setStatus(MessageStatus.READ);
-                message.setUpdatedAt(Helper.currentTimeInstant());
-                messageRepository.save(message);
-            } catch (Exception ignored) {
-            }
-        }
-        return ResponseDto.ok("Successfully");
+
+        messageRepository.markChatMessagesAsRead(
+                chatId,
+                Helper.currentTimeInstant()
+        );
+
+        return ResponseDto.ok("Messages marked as read");
     }
 
     @Override
+    @Transactional
     public ResponseDto<Void> readChatsMessages(UUID userId) {
-        ResponseDto<List<ChatResponse>> dto = unredChats(userId);
-        if (!dto.isSuccess()) {
-            return ResponseDto.fail(dto.getCode(), dto.getErrorCode(), dto.getMessage());
-        }
-        List<ChatResponse> chats = dto.getData();
-        for (ChatResponse chat : chats) {
-            for (MessageResponse message : chat.getMessages().stream().filter(messageResponse -> messageResponse.getStatus() == MessageStatus.SENT).toList()) {
-                try {
-                    Optional<Message> mOp = messageRepository.findById(message.getId());
-                    Message m = mOp.get();
-                    m.setStatus(MessageStatus.READ);
-                    m.setUpdatedAt(Helper.currentTimeInstant());
-                    messageRepository.save(m);
-                } catch (Exception ignored) {
 
-                }
-            }
-        }
-        return ResponseDto.ok("Successfully");
+        messageRepository.markAllChatsMessagesAsRead(
+                userId,
+                Helper.currentTimeInstant()
+        );
+
+        return ResponseDto.ok("All messages marked as read");
     }
 
     @Override
     public ResponseDto<List<ChatResponse>> unredChats(UUID userId) {
-        ResponseDto<List<ChatResponse>> checkUserChats = geyMyChats(userId);
-        if (!checkUserChats.isSuccess()) {
-            return ResponseDto.fail(checkUserChats.getCode(), checkUserChats.getErrorCode(), checkUserChats.getMessage());
-        }
-        List<ChatResponse> chats = checkUserChats.getData();
-        chats = chats.stream().filter(chatResponse -> (
-                chatResponse.getLastMessage() != null
-        )).toList();
-        List<ChatResponse> res = new ArrayList<>();
-        for (ChatResponse chat : chats) {
-            MessageResponse lastMessage = chat.getLastMessage();
-            if (lastMessage.getStatus() == MessageStatus.SENT && (
-                    !chat.getUser1().getId().equals(userId) && !chat.getUser2().getId().equals(userId)
-            )) {
-                res.add(chat);
-            }
-        }
+
+        List<Chat> chats = chatRepository.findUnreadChats(userId);
+
+        List<ChatResponse> res = chats.stream()
+                .map(chat -> chatMapper.toDto(chat, null))
+                .toList();
+
         return ResponseDto.ok("Success", res);
     }
+
+
 }
