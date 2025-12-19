@@ -15,6 +15,11 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
 
         return new OpenAPI()
+                .addServersItem(
+                        new io.swagger.v3.oas.models.servers.Server()
+                                .url("https://codebyz.online")
+                                .description("Production server")
+                )
                 .info(new Info()
                         .title("CodeByZ Platform API")
                         .description("CodeByZ Online Course Platform REST API hujjatlari")
