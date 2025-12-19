@@ -14,6 +14,7 @@ import uz.codebyz.message.mapper.ChatMapper;
 import uz.codebyz.message.repository.ChatRepository;
 import uz.codebyz.message.repository.MessageRepository;
 import uz.codebyz.message.service.ChatService;
+import uz.codebyz.message.service.MessageService;
 import uz.codebyz.user.entity.User;
 import uz.codebyz.user.repo.UserRepository;
 
@@ -29,12 +30,14 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMapper chatMapper;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final MessageService messageService;
 
-    public ChatServiceImpl(ChatRepository chatRepository, ChatMapper chatMapper, MessageRepository messageRepository, UserRepository userRepository) {
+    public ChatServiceImpl(ChatRepository chatRepository, ChatMapper chatMapper, MessageRepository messageRepository, UserRepository userRepository, MessageService messageService) {
         this.chatRepository = chatRepository;
         this.chatMapper = chatMapper;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
+        this.messageService = messageService;
     }
 
     private Message getLastMessage(UUID messageId) {
@@ -156,7 +159,6 @@ public class ChatServiceImpl implements ChatService {
 
         Optional<Chat> chatOptional =
                 chatRepository.findByIdAndStatus(chatId);
-
         if (chatOptional.isEmpty()) {
             log.info("Delete chat failed | chat not found | chatId={}", chatId);
             return ResponseDto.fail(
@@ -167,7 +169,9 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Chat chat = chatOptional.get();
-
+        for (Message message : chat.getMessages().stream().filter(message -> !message.isDeleted()).toList()) {
+            messageService.deleteMessage(message.getId());
+        }
         chat.setStatus(ChatStatus.DELETE);
         chatRepository.save(chat);
 

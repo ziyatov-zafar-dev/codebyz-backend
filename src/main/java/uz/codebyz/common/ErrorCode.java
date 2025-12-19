@@ -131,7 +131,9 @@ public enum ErrorCode {
             "Noto‘g‘ri so‘rov",
             "Invalid request",
             "Geçersiz istek"
-    );
+    ), MESSAGE_NOT_FOUND("Xabar topilmadi",
+            "Message not found",
+            "Mesaj bulunamadı");
     private final String uz;
     private final String en;
     private final String tr;
