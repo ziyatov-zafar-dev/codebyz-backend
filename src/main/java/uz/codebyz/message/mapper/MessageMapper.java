@@ -37,6 +37,7 @@ public class MessageMapper {
 
     public List<MessageResponse> toDto(List<Message> messages) {
         messages.sort(Comparator.comparing(Message::getCreatedAt));
+        messages = messages.stream().filter(message -> !message.isDeleted()).collect(Collectors.toList());
         return messages.stream().map(this::toDto).collect(Collectors.toList());
     }
 }
