@@ -109,6 +109,7 @@ public class ChatServiceImpl implements ChatService {
         // 🔹 UUID tartiblash (duplicate chat oldini olish)
 
         // 🔹 Chat mavjudligini tekshirish
+        Chat chat;
         Optional<Chat> chatOp = chatRepository.findByChat(user1Id, user2Id);
         if (chatOp.isPresent() && chatOp.get().getStatus() == ChatStatus.ACTIVE) {
             log.warn("Chat already exists | user1Id={}, user2Id={}", user1Id, user2Id);
@@ -117,6 +118,15 @@ public class ChatServiceImpl implements ChatService {
                     ErrorCode.CHAT_ALREADY_EXISTS,
                     "Bu kullanıcılar arasında zaten bir sohbet mevcut."
             );
+        } else {
+            if (chatOp.isPresent()) {
+                if (chatOp.get().getStatus() == ChatStatus.DELETE) {
+                    chat = chatOp.get();
+                } else {
+                    chat = new Chat();
+                }
+            }else chat = new Chat();
+
         }
 
 
@@ -128,8 +138,7 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new Exception("User not found: " + user2Id));
 
         // 🔹 Chat yaratish
-        Chat chat;
-        chat = chatOp.orElseGet(Chat::new);
+
         chat.setUser1(user1);
         chat.setUser2(user2);
         chat.setStatus(ChatStatus.ACTIVE);

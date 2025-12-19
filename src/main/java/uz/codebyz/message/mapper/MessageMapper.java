@@ -34,7 +34,6 @@ public class MessageMapper {
         dto.setEdited(message.getEdited());
         return dto;
     }
-
     public List<MessageResponse> toDto(List<Message> messages) {
         messages.sort(Comparator.comparing(Message::getCreatedAt));
         messages = messages.stream().filter(message -> !message.isDeleted()).collect(Collectors.toList());
