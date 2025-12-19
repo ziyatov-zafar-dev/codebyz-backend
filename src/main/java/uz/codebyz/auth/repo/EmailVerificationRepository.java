@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import uz.codebyz.auth.entity.EmailVerification;
 import uz.codebyz.auth.entity.VerificationPurpose;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,4 +29,6 @@ public interface EmailVerificationRepository extends JpaRepository<EmailVerifica
             VerificationPurpose purpose
     );
 
+    @Query("select  ev from EmailVerification ev where (ev.email=:email and ev.purpose=:purpose and ev.used=false)")
+    List<EmailVerification> getVerifyCodes(@Param("email") String email,@Param("purpose") VerificationPurpose purpose);
 }
