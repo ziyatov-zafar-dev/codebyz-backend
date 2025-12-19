@@ -2,7 +2,6 @@ package uz.codebyz.message.service;
 
 import uz.codebyz.common.ResponseDto;
 import uz.codebyz.message.dto.chat.ChatResponse;
-import uz.codebyz.security.JwtUser;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,4 +18,8 @@ public interface ChatService {
     ResponseDto<Void> deleteChat(UUID chatId);
 
     ResponseDto<List<ChatResponse>> geyMyChats(UUID userid);
+
+    ResponseDto<List<ChatResponse>> unredChats(UUID userId);
+    ResponseDto<Void> readChatsMessages(UUID userId);
+    ResponseDto<Void> readChatMessages(UUID chatid);
 }

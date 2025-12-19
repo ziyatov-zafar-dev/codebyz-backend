@@ -90,6 +90,36 @@ public class ChatRestController {
         );
     }
 
+    @GetMapping("unread-chats")
+    public ResponseEntity<ResponseDto<List<ChatResponse>>> unredChats(
+            @AuthenticationPrincipal JwtUser user
+    ) {
+        return ResponseEntity.ok(chatService.unredChats(
+                        user.getUserId()
+                )
+        );
+    }
+
+    @PutMapping("all-read-chat")
+    public ResponseEntity<ResponseDto<Void>> unredChatMessages(
+            @AuthenticationPrincipal JwtUser user
+    ) {
+        return ResponseEntity.ok(chatService.readChatsMessages(
+                        user.getUserId()
+                )
+        );
+    }
+
+    @PutMapping("all-read-chat/{chatid}")
+    public ResponseEntity<ResponseDto<Void>> unredChatMessages(
+            @PathVariable("chatid") UUID chatid
+    ) {
+        return ResponseEntity.ok(chatService.readChatMessages(
+                        chatid
+                )
+        );
+    }
+
     @PostMapping("generate-chats")
     public void genereateChats(@AuthenticationPrincipal JwtUser jwtUser, @RequestParam("uid") UUID userid) {
 

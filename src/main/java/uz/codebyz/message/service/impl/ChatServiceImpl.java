@@ -7,9 +7,11 @@ import uz.codebyz.common.ErrorCode;
 import uz.codebyz.common.Helper;
 import uz.codebyz.common.ResponseDto;
 import uz.codebyz.message.dto.chat.ChatResponse;
+import uz.codebyz.message.dto.message.MessageResponse;
 import uz.codebyz.message.entity.Chat;
 import uz.codebyz.message.entity.Message;
 import uz.codebyz.message.entity.enums.ChatStatus;
+import uz.codebyz.message.entity.enums.MessageStatus;
 import uz.codebyz.message.mapper.ChatMapper;
 import uz.codebyz.message.repository.ChatRepository;
 import uz.codebyz.message.repository.MessageRepository;
@@ -225,7 +227,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
 
-
     @Override
     public ResponseDto<Void> deleteChat(UUID chatId) {
 
@@ -284,5 +285,65 @@ public class ChatServiceImpl implements ChatService {
         return ResponseDto.ok(
                 "Sohbetler başarıyla alındı", responses
         );
+    }
+
+    @Override
+    public ResponseDto<Void> readChatMessages(UUID chatid) {
+        Optional<Chat> chatOp = chatRepository.findByChatId(chatid);
+        if (chatOp.isEmpty()) {
+            return ResponseDto.fail(404, ErrorCode.CHAT_NOT_FOUND, ErrorCode.CHAT_NOT_FOUND.getTr());
+        }
+        for (Message message : chatOp.get().getMessages().stream().filter(message -> message.getStatus() == MessageStatus.SENT).toList()) {
+            try {
+                message.setStatus(MessageStatus.READ);
+                message.setUpdatedAt(Helper.currentTimeInstant());
+                messageRepository.save(message);
+            } catch (Exception ignored) {
+            }
+        }
+        return ResponseDto.ok("Successfully");
+    }
+
+    @Override
+    public ResponseDto<Void> readChatsMessages(UUID userId) {
+        ResponseDto<List<ChatResponse>> dto = unredChats(userId);
+        if (!dto.isSuccess()) {
+            return ResponseDto.fail(dto.getCode(), dto.getErrorCode(), dto.getMessage());
+        }
+        List<ChatResponse> chats = dto.getData();
+        for (ChatResponse chat : chats) {
+            for (MessageResponse message : chat.getMessages().stream().filter(messageResponse -> messageResponse.getStatus() == MessageStatus.SENT).toList()) {
+                try {
+                    Optional<Message> mOp = messageRepository.findById(message.getId());
+                    Message m = mOp.get();
+                    m.setStatus(MessageStatus.READ);
+                    m.setUpdatedAt(Helper.currentTimeInstant());
+                    messageRepository.save(m);
+                } catch (Exception ignored) {
+
+                }
+            }
+        }
+        return ResponseDto.ok("Successfully");
+    }
+
+    @Override
+    public ResponseDto<List<ChatResponse>> unredChats(UUID userId) {
+        ResponseDto<List<ChatResponse>> checkUserChats = geyMyChats(userId);
+        if (!checkUserChats.isSuccess()) {
+            return ResponseDto.fail(checkUserChats.getCode(), checkUserChats.getErrorCode(), checkUserChats.getMessage());
+        }
+        List<ChatResponse> chats = checkUserChats.getData();
+        chats = chats.stream().filter(chatResponse -> (
+                chatResponse.getLastMessage() != null
+        )).toList();
+        List<ChatResponse> res = new ArrayList<>();
+        for (ChatResponse chat : chats) {
+            MessageResponse lastMessage = chat.getLastMessage();
+            if (lastMessage.getStatus() == MessageStatus.SENT) {
+                res.add(chat);
+            }
+        }
+        return ResponseDto.ok("Success", res);
     }
 }
