@@ -5,6 +5,7 @@ import uz.codebyz.common.mapper.UserMapper;
 import uz.codebyz.message.dto.message.MessageResponse;
 import uz.codebyz.message.entity.Message;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class MessageMapper {
     }
 
     public List<MessageResponse> toDto(List<Message> messages) {
+        messages.sort(Comparator.comparing(Message::getCreatedAt));
         return messages.stream().map(this::toDto).collect(Collectors.toList());
     }
 }

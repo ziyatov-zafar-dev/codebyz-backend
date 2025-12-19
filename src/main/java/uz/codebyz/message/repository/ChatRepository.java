@@ -21,6 +21,7 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
                         (ch.user1.id = :u2 and ch.user2.id = :u1)
                     )
                     and ch.status = uz.codebyz.message.entity.enums.ChatStatus.ACTIVE
+                                order by ch.createdAt asc
             """)
     Optional<Chat> findActiveChatBetweenUsers(
             @Param("u1") UUID user1Id,
