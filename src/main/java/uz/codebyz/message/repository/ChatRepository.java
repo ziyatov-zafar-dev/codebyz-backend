@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.codebyz.message.entity.Chat;
+import uz.codebyz.user.entity.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,4 +55,17 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
             """)
     List<Chat> findAllActiveChatsByUser(@Param("userId") UUID userId);
 
+
+
+
+
+
+
+
+
+
+
+    Optional<Chat> findByUser1AndUser2(User user1, User user2);
+
+    Optional<Chat> findByUser2AndUser1(User user2, User user1);
 }
