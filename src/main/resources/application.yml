@@ -50,7 +50,8 @@ sendgrid:
 
 storage:
   base-url: ${BACKEND:https://codebyz.online}
-  uploads-dir: files
+  uploads-dir: uploads
+  uploads-dir-config: uploads
   public-base-url: ${BACKEND:https://codebyz.online}/files
   profile:
     base:

@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final String uploadsDir;
 
-    public WebConfig(@Value("${storage.uploads-dir}") String uploadsDir) {
+    public WebConfig(@Value("${storage.uploads-dir-config}") String uploadsDir) {
         this.uploadsDir = uploadsDir;
     }
 
