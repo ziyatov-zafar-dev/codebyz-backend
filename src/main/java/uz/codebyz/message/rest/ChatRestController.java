@@ -81,11 +81,11 @@ public class ChatRestController {
 
     @GetMapping("exists-by-chat")
     public ResponseEntity<ResponseDto<ChatResponse>> existsChatByChat(
-            @RequestParam("user1id") UUID user1id,
-            @RequestParam("user2id") UUID user2id
+            @AuthenticationPrincipal JwtUser user,
+            @RequestParam("userid") UUID user2id
     ) {
         return ResponseEntity.ok(chatService.existsChat(
-                        user1id, user2id
+                        user.getUserId(), user2id
                 )
         );
     }
