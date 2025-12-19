@@ -71,5 +71,5 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
     Optional<Chat> findByUser2AndUser1(User user2, User user1);
 
     @Query("select ch from Chat ch where ch.id=:id and ch.status=uz.codebyz.message.entity.enums.ChatStatus.ACTIVE")
-    Optional<Chat> findByChatId(UUID chatid);
+    Optional<Chat> findByChatId(@Param("id") UUID chatid);
 }
