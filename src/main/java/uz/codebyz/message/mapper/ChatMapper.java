@@ -23,8 +23,8 @@ public class ChatMapper {
         dto.setId(chat.getId());
         dto.setUser1(userMapper.toDto(chat.getUser1()));
         dto.setUser2(userMapper.toDto(chat.getUser2()));
-        dto.setLastMessage(messageMapper.toDto(lastMessage));
-        dto.setLastMessageTime(chat.getLastMessageTime());
+        if (lastMessage != null) dto.setLastMessage(messageMapper.toDto(lastMessage));
+        if (lastMessage != null) dto.setLastMessageTime(chat.getLastMessageTime());
         dto.setCreatedAt(chat.getCreatedAt());
         dto.setUpdatedAt(chat.getUpdatedAt());
         dto.setMessages(messageMapper.toDto(chat.getMessages()));
