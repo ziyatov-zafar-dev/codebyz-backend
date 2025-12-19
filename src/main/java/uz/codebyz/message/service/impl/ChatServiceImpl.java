@@ -340,7 +340,9 @@ public class ChatServiceImpl implements ChatService {
         List<ChatResponse> res = new ArrayList<>();
         for (ChatResponse chat : chats) {
             MessageResponse lastMessage = chat.getLastMessage();
-            if (lastMessage.getStatus() == MessageStatus.SENT) {
+            if (lastMessage.getStatus() == MessageStatus.SENT && (
+                    !chat.getUser1().getId().equals(userId) && !chat.getUser2().getId().equals(userId)
+            )) {
                 res.add(chat);
             }
         }
