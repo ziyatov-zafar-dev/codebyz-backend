@@ -1,9 +1,7 @@
 package uz.codebyz.message.dto.chat;
 
-import uz.codebyz.common.dto.user.UserResponse;
-import uz.codebyz.message.dto.message.MessageResponse;
-import uz.codebyz.message.entity.Chat;
-import uz.codebyz.user.entity.User;
+import uz.codebyz.message.entity.enums.ChatStatus;
+import uz.codebyz.message.entity.enums.ChatType;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,75 +9,44 @@ import java.util.UUID;
 
 public class ChatResponse {
     private UUID id;
-    private UserResponse user1;
-    private UserResponse user2;
-    private MessageResponse lastMessage;
+    private ChatType type;
+    private ChatStatus status;
+    private List<UUID> memberIds;
     private Instant lastMessageTime;
-    private Instant createdAt;
-    private Instant updatedAt;
-    private List<MessageResponse> messages;
 
-    public UUID getId() {
-        return id;
-    }
+    private long unreadCount;
+    private UUID pinnedMessageId;
 
-    public void setId(UUID id) {
+    public ChatResponse() {}
+
+    public ChatResponse(UUID id, ChatType type, ChatStatus status, List<UUID> memberIds, Instant lastMessageTime, long unreadCount, UUID pinnedMessageId) {
         this.id = id;
-    }
-
-    public UserResponse getUser1() {
-        return user1;
-    }
-
-    public void setUser1(UserResponse user1) {
-        this.user1 = user1;
-    }
-
-    public UserResponse getUser2() {
-        return user2;
-    }
-
-    public void setUser2(UserResponse user2) {
-        this.user2 = user2;
-    }
-
-    public MessageResponse getLastMessage() {
-        return lastMessage;
-    }
-
-    public void setLastMessage(MessageResponse lastMessage) {
-        this.lastMessage = lastMessage;
-    }
-
-    public Instant getLastMessageTime() {
-        return lastMessageTime;
-    }
-
-    public void setLastMessageTime(Instant lastMessageTime) {
+        this.type = type;
+        this.status = status;
+        this.memberIds = memberIds;
         this.lastMessageTime = lastMessageTime;
+        this.unreadCount = unreadCount;
+        this.pinnedMessageId = pinnedMessageId;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+    public ChatType getType() { return type; }
+    public void setType(ChatType type) { this.type = type; }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+    public ChatStatus getStatus() { return status; }
+    public void setStatus(ChatStatus status) { this.status = status; }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public List<UUID> getMemberIds() { return memberIds; }
+    public void setMemberIds(List<UUID> memberIds) { this.memberIds = memberIds; }
 
-    public List<MessageResponse> getMessages() {
-        return messages;
-    }
+    public Instant getLastMessageTime() { return lastMessageTime; }
+    public void setLastMessageTime(Instant lastMessageTime) { this.lastMessageTime = lastMessageTime; }
 
-    public void setMessages(List<MessageResponse> messages) {
-        this.messages = messages;
-    }
+    public long getUnreadCount() { return unreadCount; }
+    public void setUnreadCount(long unreadCount) { this.unreadCount = unreadCount; }
+
+    public UUID getPinnedMessageId() { return pinnedMessageId; }
+    public void setPinnedMessageId(UUID pinnedMessageId) { this.pinnedMessageId = pinnedMessageId; }
 }

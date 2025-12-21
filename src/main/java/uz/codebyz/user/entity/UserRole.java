@@ -9,7 +9,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * - ADMIN: admin panel / tasdiqlovchi
  */
 public enum UserRole {
-    STUDENT,
-    TEACHER,
-    ADMIN
+    STUDENT("STUDENT"),
+    TEACHER("TEACHER"),
+    ADMIN("ADMIN");
+    private String name;
+    UserRole(String name) { this.name = name; }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

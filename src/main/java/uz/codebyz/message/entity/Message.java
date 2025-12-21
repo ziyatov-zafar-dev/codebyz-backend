@@ -9,149 +9,82 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "messages")
+@Table(
+        name = "messages",
+        indexes = {
+                @Index(name = "idx_message_chat_time", columnList = "chat_id, created_at"),
+                @Index(name = "idx_message_sender", columnList = "sender_id")
+        }
+)
 public class Message {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(columnDefinition = "uuid")
     private UUID id;
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private User sender;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MessageType type;
-    @Column(columnDefinition = "text")
-    private String content;
-    @Column(length = 1000)
-    private String fileUrl;
-    private String fileName;
-    private Long fileSize;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MessageStatus status;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_to_id")
-    private Message replyTo;
-    @Column(nullable = false)
-    private boolean deleted;
-    @Column(nullable = false, updatable = false)
+
+    @Column(columnDefinition = "text")
+    private String content;
+
+    @Column(nullable = false, name = "created_at")
     private Instant createdAt;
+
+    @Column(nullable = false, name = "updated_at")
     private Instant updatedAt;
-    private Boolean edited = false;
 
+    public Message() {}
 
-    public UUID getId() {
-        return id;
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+        if (this.status == null) this.status = MessageStatus.ACTIVE;
+        if (this.type == null) this.type = MessageType.TEXT;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
     }
 
-    public User getSender() {
-        return sender;
-    }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
+    public Chat getChat() { return chat; }
+    public void setChat(Chat chat) { this.chat = chat; }
 
-    public Chat getChat() {
-        return chat;
-    }
+    public User getSender() { return sender; }
+    public void setSender(User sender) { this.sender = sender; }
 
-    public void setChat(Chat chat) {
-        this.chat = chat;
-    }
+    public MessageType getType() { return type; }
+    public void setType(MessageType type) { this.type = type; }
 
-    public MessageType getType() {
-        return type;
-    }
+    public MessageStatus getStatus() { return status; }
+    public void setStatus(MessageStatus status) { this.status = status; }
 
-    public void setType(MessageType type) {
-        this.type = type;
-    }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
 
-    public String getContent() {
-        return content;
-    }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getFileUrl() {
-        return fileUrl;
-    }
-
-    public void setFileUrl(String fileUrl) {
-        this.fileUrl = fileUrl;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public Long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public MessageStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(MessageStatus status) {
-        this.status = status;
-    }
-
-    public Message getReplyTo() {
-        return replyTo;
-    }
-
-    public void setReplyTo(Message replyTo) {
-        this.replyTo = replyTo;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Boolean getEdited() {
-        return edited;
-    }
-
-    public void setEdited(Boolean edited) {
-        this.edited = edited;
-    }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
