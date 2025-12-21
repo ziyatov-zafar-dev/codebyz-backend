@@ -25,7 +25,7 @@ public class ReactionRestController {
     @GetMapping("/{messageId}/reactions")
     public ResponseEntity<ResponseDto<ReactionSummaryResponse>> getSummary(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID messageId
+            @PathVariable("messageId") UUID messageId
     ) {
         return ResponseEntity.ok(reactionService.getReactionSummary(jwtUser.getUserId(), messageId));
     }
@@ -33,7 +33,7 @@ public class ReactionRestController {
     @PostMapping("/{messageId}/reactions")
     public ResponseEntity<ResponseDto<ReactionSummaryResponse>> add(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID messageId,
+            @PathVariable("messageId") UUID messageId,
             @Valid @RequestBody ReactionRequest req
     ) {
         return ResponseEntity.ok(reactionService.addReaction(jwtUser.getUserId(), messageId, req.getEmoji()));
@@ -42,8 +42,8 @@ public class ReactionRestController {
     @DeleteMapping("/{messageId}/reactions")
     public ResponseEntity<ResponseDto<ReactionSummaryResponse>> remove(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID messageId,
-            @RequestParam String emoji
+            @PathVariable("messageId") UUID messageId,
+            @RequestParam("emoji") String emoji
     ) {
         return ResponseEntity.ok(reactionService.removeReaction(jwtUser.getUserId(), messageId, emoji));
     }

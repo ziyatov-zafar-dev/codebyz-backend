@@ -25,7 +25,7 @@ public class ChatRestController {
     @PostMapping("/private/{otherUserId}")
     public ResponseEntity<ResponseDto<ChatResponse>> createOrGetPrivate(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID otherUserId
+            @PathVariable("otherUserId") UUID otherUserId
     ) {
         return ResponseEntity.ok(chatService.createOrGetPrivateChat(jwtUser.getUserId(), otherUserId));
     }
@@ -47,7 +47,7 @@ public class ChatRestController {
     @PostMapping("/{chatId}/read")
     public ResponseEntity<ResponseDto<Void>> markRead(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID chatId
+            @PathVariable("chatId") UUID chatId
     ) {
         return ResponseEntity.ok(chatService.markChatRead(jwtUser.getUserId(), chatId));
     }
@@ -55,8 +55,8 @@ public class ChatRestController {
     @PostMapping("/{chatId}/pin/{messageId}")
     public ResponseEntity<ResponseDto<Void>> pin(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID chatId,
-            @PathVariable UUID messageId
+            @PathVariable("chatId") UUID chatId,
+            @PathVariable("messageId") UUID messageId
     ) {
         return ResponseEntity.ok(chatService.pinMessage(jwtUser.getUserId(), chatId, messageId));
     }
@@ -64,7 +64,7 @@ public class ChatRestController {
     @PostMapping("/{chatId}/unpin")
     public ResponseEntity<ResponseDto<Void>> unpin(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID chatId
+            @PathVariable("chatId") UUID chatId
     ) {
         return ResponseEntity.ok(chatService.unpinMessage(jwtUser.getUserId(), chatId));
     }
@@ -72,7 +72,7 @@ public class ChatRestController {
     @DeleteMapping("/{chatId}")
     public ResponseEntity<ResponseDto<Void>> deleteChat(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID chatId
+            @PathVariable("chatId") UUID chatId
     ) {
         return ResponseEntity.ok(chatService.deleteChat(jwtUser.getUserId(), chatId));
     }

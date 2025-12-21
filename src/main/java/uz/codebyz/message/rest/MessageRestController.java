@@ -34,21 +34,21 @@ public class MessageRestController {
         return ResponseEntity.ok(messageService.sendMessage(jwtUser.getUserId(), req));
     }
 
-@PostMapping(value = "/send-file", consumes = {"multipart/form-data"})
-public ResponseEntity<ResponseDto<MessageResponse>> sendFile(
-        @AuthenticationPrincipal JwtUser jwtUser,
-        @RequestParam UUID chatId,
-        @RequestParam MessageType type,
-        @RequestPart MultipartFile file,
-        @RequestParam(required = false) String caption
-) {
-    return ResponseEntity.ok(messageService.sendFileMessage(jwtUser.getUserId(), chatId, type, file, caption));
-}
+    @PostMapping(value = "/send-file", consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseDto<MessageResponse>> sendFile(
+            @AuthenticationPrincipal JwtUser jwtUser,
+            @RequestParam("chatId") UUID chatId,
+            @RequestParam("type") MessageType type,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(required = false) String caption
+    ) {
+        return ResponseEntity.ok(messageService.sendFileMessage(jwtUser.getUserId(), chatId, type, file, caption));
+    }
 
     @PutMapping("/{messageId}")
     public ResponseEntity<ResponseDto<MessageResponse>> edit(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID messageId,
+            @PathVariable("messageId") UUID messageId,
             @Valid @RequestBody EditMessageRequest req
     ) {
         return ResponseEntity.ok(messageService.editMessage(jwtUser.getUserId(), messageId, req));
@@ -57,7 +57,7 @@ public ResponseEntity<ResponseDto<MessageResponse>> sendFile(
     @DeleteMapping("/{messageId}")
     public ResponseEntity<ResponseDto<Void>> delete(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID messageId
+            @PathVariable("messageId") UUID messageId
     ) {
         return ResponseEntity.ok(messageService.deleteMessage(jwtUser.getUserId(), messageId));
     }
@@ -65,9 +65,9 @@ public ResponseEntity<ResponseDto<MessageResponse>> sendFile(
     @GetMapping("/chats/{chatId}")
     public ResponseEntity<ResponseDto<Page<MessageResponse>>> chatMessages(
             @AuthenticationPrincipal JwtUser jwtUser,
-            @PathVariable UUID chatId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "30") int size
+            @PathVariable("chatId") UUID chatId,
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "30", name = "size") int size
     ) {
         return ResponseEntity.ok(messageService.getChatMessages(jwtUser.getUserId(), chatId, page, size));
     }
