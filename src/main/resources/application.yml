@@ -49,10 +49,12 @@ sendgrid:
   from-name: CodeByZ
 
 storage:
-  base-url: ${BACKEND:https://codebyz.online}
+  # BACKEND
+  base-url: http://164.90.174.138:8094
   uploads-dir: files
 #  uploads-dir-config: files
-  public-base-url: ${BACKEND:https://codebyz.online}/files
+#  BACKEND
+  public-base-url: http://164.90.174.138:8094
   profile:
     base:
       url: files/profile
